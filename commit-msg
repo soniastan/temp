@@ -1,0 +1,22 @@
+#!/bin/bash                                                                                                                                                                                                          #!/bin/bash
+#
+# Automatically adds the issue number at the beggining of the commit message.
+# Branches should have the following names:
+#    - f/#12345-feature-branch
+#    - b/#12345-branch-for-solving-a-bug
+#    - c/#12345-general-branch-attached-to-an-issue
+#    - master
+
+branch_name=$(git branch | grep '*' | sed 's/* //')
+TEXT=$(cat "$1" | sed '/^#.*/d')
+
+if [ -n "$TEXT" ]
+then
+    branch_name_tokens=(`echo $branch_name | tr '-' ' '`)
+    issue_name=(`echo ${branch_name_tokens[0]} | tr '/' ' '`)
+    issue_number=${issue_name[1]}
+    echo "$issue_number"' '$(cat "$1" | sed '/^#.*/d') > "$1"
+else
+    echo "Aborting commit due to empty commit message."
+    exit 1
+fi
